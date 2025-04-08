@@ -1,0 +1,475 @@
+{
+  "timestamp": "20250407-232229",
+  "mode": "actual",
+  "stats": {
+    "dirs_scanned": 39,
+    "files_scanned": 223,
+    "dirs_removed": 34,
+    "files_removed": 259,
+    "bytes_freed": 1092928408,
+    "redundant_sets": 19,
+    "preserved_files": 16
+  },
+  "deleted_files": [
+    "output/gene_counts_20250407-162644.csv",
+    "output/gene_counts_20250407-162228.csv",
+    "output/results_20250407-162644.json",
+    "output/results_20250407-162228.json",
+    "output/variants_20250407-162644.csv",
+    "output/gene_counts_20250407-162826.csv",
+    "output/gene_counts_20250407-163411.csv",
+    "output/gene_counts_20250407-171352.csv",
+    "results/full_analysis/gene_counts_20250407-192832.csv",
+    "results/full_analysis/gene_counts_20250407-192850.csv",
+    "results/wgs_analysis/gene_counts_20250407-223205.csv",
+    "output/variants_20250407-162826.csv",
+    "output/variants_20250407-163411.csv",
+    "output/variants_20250407-171352.csv",
+    "results/full_analysis/variants_20250407-192832.csv",
+    "results/full_analysis/variants_20250407-192850.csv",
+    "results/wgs_analysis/variants_20250407-223205.csv",
+    "output/benchmark_results_final/system_analysis.md",
+    "analysis_results/system_analysis.md",
+    "output/benchmark_results_final/system_analysis.json",
+    "analysis_results/system_analysis.json",
+    "output/benchmark_results_final/gene_counts_20250407-214203.csv",
+    "analysis_results/gene_counts_20250407-173847.csv",
+    "analysis_results/gene_counts_20250407-174044.csv",
+    "results/wgs_analysis_advanced/gene_counts_20250407-224728.csv",
+    "results/wgs_analysis_advanced/gene_counts_20250407-224826.csv",
+    "results/wgs_analysis_harmonized/gene_counts_20250407-225145.csv",
+    "output/benchmark_results_final/visualizations/chromosome_distribution.png",
+    "analysis_results/visualizations/chromosome_distribution.png",
+    "results/wgs_analysis_advanced/visualizations/chromosome_distribution.png",
+    "results/wgs_analysis_harmonized/visualizations/chromosome_distribution.png",
+    "output/benchmark_results_final/visualizations/variant_type_distribution.png",
+    "analysis_results/visualizations/variant_type_distribution.png",
+    "results/wgs_analysis_advanced/visualizations/variant_type_distribution.png",
+    "results/wgs_analysis_harmonized/visualizations/variant_type_distribution.png",
+    "output/benchmark_results_final/visualizations/transition_transversion_ratio.png",
+    "analysis_results/visualizations/transition_transversion_ratio.png",
+    "results/wgs_analysis_advanced/visualizations/transition_transversion_ratio.png",
+    "results/wgs_analysis_harmonized/visualizations/transition_transversion_ratio.png",
+    "output/benchmark_results_final/visualizations/top_variant_enriched_genes.png",
+    "analysis_results/visualizations/top_variant_enriched_genes.png",
+    "results/wgs_analysis_advanced/visualizations/top_variant_enriched_genes.png",
+    "results/wgs_analysis_harmonized/visualizations/top_variant_enriched_genes.png",
+    "analysis_results/variants_20250407-174044.csv",
+    "results/wgs_analysis_advanced/variants_20250407-224728.csv",
+    "results/wgs_analysis_advanced/variants_20250407-224826.csv",
+    "results/wgs_analysis_harmonized/variants_20250407-225145.csv",
+    "results/full_analysis/visualizations/chromosome_distribution.png",
+    "results/wgs_analysis/visualizations/chromosome_distribution.png",
+    "results/full_analysis/visualizations/variant_type_distribution.png",
+    "results/wgs_analysis/visualizations/variant_type_distribution.png",
+    "results/full_analysis/visualizations/transition_transversion_ratio.png",
+    "results/wgs_analysis/visualizations/transition_transversion_ratio.png",
+    "results/full_analysis/visualizations/top_variant_enriched_genes.png",
+    "results/wgs_analysis/visualizations/top_variant_enriched_genes.png",
+    "results/wgs_analysis_advanced/variant_report.md",
+    "results/wgs_analysis_harmonized/variant_report.md",
+    "results/personal_analysis_enhanced/personal_variants.csv",
+    "results/personal_analysis_enhanced/enhanced_variants.csv",
+    "cleanup_report_20250407-232216.json",
+    "output/system_analysis.md",
+    "output/system_analysis.json",
+    "output/results_20250407-162826.json",
+    "output/gaslit_af_report_20250407-162828.html",
+    "output/results_20250407-163411.json",
+    "output/gaslit_af_report_20250407-163413.html",
+    "output/gaslit_af_report_20250407-163413.md",
+    "output/results_20250407-171352.json",
+    "output/gaslit_af_report_20250407-171354.html",
+    "output/gaslit_af_report_20250407-171354.md",
+    "output/visualizations/chromosome_distribution.html",
+    "output/visualizations/chromosome_distribution.png",
+    "output/visualizations/chromosome_distribution.svg",
+    "output/visualizations/variant_type_distribution.html",
+    "output/visualizations/variant_type_distribution.png",
+    "output/visualizations/variant_type_distribution.svg",
+    "output/visualizations/transition_transversion_ratio.html",
+    "output/visualizations/transition_transversion_ratio.png",
+    "output/visualizations/transition_transversion_ratio.svg",
+    "output/visualizations/top_variant_enriched_genes.html",
+    "output/visualizations/top_variant_enriched_genes.png",
+    "output/visualizations/top_variant_enriched_genes.svg",
+    "output/benchmark_results/system_analysis.md",
+    "output/benchmark_results/system_analysis.json",
+    "output/benchmark_results/gene_counts_20250407-214035.csv",
+    "output/benchmark_results/variants_20250407-214035.csv",
+    "output/benchmark_results/results_20250407-214035.json",
+    "output/benchmark_results/enriched_variants.csv",
+    "output/benchmark_results/gaslit_af_report_20250407-214036.html",
+    "output/benchmark_results/gaslit_af_report_20250407-214036.md",
+    "output/benchmark_results/visualizations/chromosome_distribution.html",
+    "output/benchmark_results/visualizations/chromosome_distribution.png",
+    "output/benchmark_results/visualizations/chromosome_distribution.svg",
+    "output/benchmark_results/visualizations/variant_type_distribution.html",
+    "output/benchmark_results/visualizations/variant_type_distribution.png",
+    "output/benchmark_results/visualizations/variant_type_distribution.svg",
+    "output/benchmark_results/visualizations/transition_transversion_ratio.html",
+    "output/benchmark_results/visualizations/transition_transversion_ratio.png",
+    "output/benchmark_results/visualizations/transition_transversion_ratio.svg",
+    "output/benchmark_results/visualizations/top_variant_enriched_genes.html",
+    "output/benchmark_results/visualizations/top_variant_enriched_genes.png",
+    "output/benchmark_results/visualizations/top_variant_enriched_genes.svg",
+    "output/benchmark_results_final/variants_20250407-214203.csv",
+    "output/benchmark_results_final/results_20250407-214203.json",
+    "output/benchmark_results_final/enriched_variants.csv",
+    "output/benchmark_results_final/gaslit_af_report_20250407-214503.html",
+    "output/benchmark_results_final/gaslit_af_report_20250407-214503.md",
+    "output/benchmark_results_final/visualizations/chromosome_distribution.html",
+    "output/benchmark_results_final/visualizations/chromosome_distribution.svg",
+    "output/benchmark_results_final/visualizations/variant_type_distribution.html",
+    "output/benchmark_results_final/visualizations/variant_type_distribution.svg",
+    "output/benchmark_results_final/visualizations/transition_transversion_ratio.html",
+    "output/benchmark_results_final/visualizations/transition_transversion_ratio.svg",
+    "output/benchmark_results_final/visualizations/top_variant_enriched_genes.html",
+    "output/benchmark_results_final/visualizations/top_variant_enriched_genes.svg",
+    "cache/variant_df_57336d1a1898cf39be66a36a507becb3.cache",
+    "cache/gene_counts_baa36398205462bc2987ae35c38f6d3f.cache",
+    "cache/variant_df_bc1d612592feb7791d9b927ea83488af.cache",
+    "cache/variant_df_b0a1d3cd196b284d93e9aeae1569ccdd.cache",
+    "cache/api/ensembl/ensembl_vep_rs429358.json",
+    "cache/api/ensembl/ensembl_variant_rs429358.json",
+    "cache/api/ensembl/ensembl_vep_rs146170087.json",
+    "cache/api/ensembl/ensembl_vep_rs2350780.json",
+    "cache/api/ensembl/ensembl_vep_rs6277.json",
+    "cache/api/ensembl/ensembl_vep_rs575602255.json",
+    "cache/api/ensembl/ensembl_vep_rs555466095.json",
+    "cache/api/myvariant/myvariant_rs429358.json",
+    "cache/api/myvariant/myvariant_chr5_g.89914954A>G.json",
+    "cache/api/myvariant/myvariant_chr5_g.90001318C>G.json",
+    "cache/api/myvariant/myvariant_chr7_g.136592969G>A.json",
+    "cache/api/myvariant/myvariant_chr11_g.113283459G>A.json",
+    "cache/api/myvariant/myvariant_chr19_g.30193654T>C.json",
+    "cache/enrichment/variant_summary.txt.gz",
+    "cache/enrichment/variant_summary_processed.parquet",
+    "cache/enrichment/variant_enrichment_fe23cc6de1a0369b70305a7cca565624.cache",
+    "cache/enrichment/variant_enrichment_76e03a68c5593d3599874f2883c4a6ea.cache",
+    "cache/enrichment/variant_enrichment_341a17c8c810bf4ac7ada3a452bc3a16.cache",
+    "cache/enrichment/variant_enrichment_784ba4c981acdf949bfeae2e6ee6554f.cache",
+    "cache/enrichment/variant_enrichment_672269396bd3a327231df12242037650.cache",
+    "cache/enrichment/ensembl/ensembl_vep_rs146170087.json",
+    "cache/enrichment/ensembl/ensembl_vep_rs575602255.json",
+    "cache/enrichment/ensembl/ensembl_variant_rs575602255.json",
+    "cache/enrichment/ensembl/ensembl_vep_rs555466095.json",
+    "cache/enrichment/ensembl/ensembl_vep_rs2350780.json",
+    "cache/enrichment/ensembl/ensembl_variant_rs2350780.json",
+    "cache/enrichment/ensembl/ensembl_variant_rs555466095.json",
+    "cache/enrichment/ensembl/ensembl_vep_rs6277.json",
+    "cache/enrichment/ensembl/ensembl_variant_rs146170087.json",
+    "cache/enrichment/ensembl/ensembl_variant_rs6277.json",
+    "cache/enrichment/myvariant/myvariant_rs575602255.json",
+    "cache/enrichment/myvariant/myvariant_rs2350780.json",
+    "cache/enrichment/myvariant/myvariant_rs555466095.json",
+    "cache/enrichment/myvariant/myvariant_rs146170087.json",
+    "cache/enrichment/myvariant/myvariant_rs6277.json",
+    ".pytest_cache/CACHEDIR.TAG",
+    ".pytest_cache/v/cache/nodeids",
+    ".pytest_cache/v/cache/lastfailed",
+    ".pytest_cache/v/cache/stepwise",
+    "__pycache__/find_specific_variants.cpython-312.pyc",
+    "analysis_results/variant_report.md",
+    "analysis_results/variants_20250407-173847.csv",
+    "analysis_results/results_20250407-173847.json",
+    "analysis_results/results_20250407-174044.json",
+    "analysis_results/gaslit_af_report_20250407-174045.html",
+    "analysis_results/gaslit_af_report_20250407-174045.md",
+    "analysis_results/visualizations/chromosome_distribution.html",
+    "analysis_results/visualizations/chromosome_distribution.svg",
+    "analysis_results/visualizations/variant_type_distribution.html",
+    "analysis_results/visualizations/variant_type_distribution.svg",
+    "analysis_results/visualizations/transition_transversion_ratio.html",
+    "analysis_results/visualizations/transition_transversion_ratio.svg",
+    "analysis_results/visualizations/top_variant_enriched_genes.html",
+    "analysis_results/visualizations/top_variant_enriched_genes.svg",
+    "benchmark_results/benchmark_results_20250407_183352.json",
+    "results/full_analysis/results_20250407-192832.json",
+    "results/full_analysis/gaslit_af_report_20250407-192833.html",
+    "results/full_analysis/gaslit_af_report_20250407-192833.md",
+    "results/full_analysis/results_20250407-192850.json",
+    "results/full_analysis/gaslit_af_report_20250407-192852.html",
+    "results/full_analysis/gaslit_af_report_20250407-192852.md",
+    "results/full_analysis/visualizations/chromosome_distribution.html",
+    "results/full_analysis/visualizations/chromosome_distribution.svg",
+    "results/full_analysis/visualizations/variant_type_distribution.html",
+    "results/full_analysis/visualizations/variant_type_distribution.svg",
+    "results/full_analysis/visualizations/transition_transversion_ratio.html",
+    "results/full_analysis/visualizations/transition_transversion_ratio.svg",
+    "results/full_analysis/visualizations/top_variant_enriched_genes.html",
+    "results/full_analysis/visualizations/top_variant_enriched_genes.svg",
+    "results/wgs_analysis/system_analysis.md",
+    "results/wgs_analysis/system_analysis.json",
+    "results/wgs_analysis/results_20250407-223205.json",
+    "results/wgs_analysis/gaslit_af_report_20250407-223207.html",
+    "results/wgs_analysis/gaslit_af_report_20250407-223207.md",
+    "results/wgs_analysis/visualizations/chromosome_distribution.html",
+    "results/wgs_analysis/visualizations/chromosome_distribution.svg",
+    "results/wgs_analysis/visualizations/variant_type_distribution.html",
+    "results/wgs_analysis/visualizations/variant_type_distribution.svg",
+    "results/wgs_analysis/visualizations/transition_transversion_ratio.html",
+    "results/wgs_analysis/visualizations/transition_transversion_ratio.svg",
+    "results/wgs_analysis/visualizations/top_variant_enriched_genes.html",
+    "results/wgs_analysis/visualizations/top_variant_enriched_genes.svg",
+    "results/wgs_analysis_advanced/results_20250407-224728.json",
+    "results/wgs_analysis_advanced/gaslit_af_report_20250407-224729.html",
+    "results/wgs_analysis_advanced/gaslit_af_report_20250407-224729.md",
+    "results/wgs_analysis_advanced/results_20250407-224826.json",
+    "results/wgs_analysis_advanced/gaslit_af_report_20250407-224827.html",
+    "results/wgs_analysis_advanced/gaslit_af_report_20250407-224827.md",
+    "results/wgs_analysis_advanced/visualizations/chromosome_distribution.html",
+    "results/wgs_analysis_advanced/visualizations/chromosome_distribution.svg",
+    "results/wgs_analysis_advanced/visualizations/variant_type_distribution.html",
+    "results/wgs_analysis_advanced/visualizations/variant_type_distribution.svg",
+    "results/wgs_analysis_advanced/visualizations/transition_transversion_ratio.html",
+    "results/wgs_analysis_advanced/visualizations/transition_transversion_ratio.svg",
+    "results/wgs_analysis_advanced/visualizations/top_variant_enriched_genes.html",
+    "results/wgs_analysis_advanced/visualizations/top_variant_enriched_genes.svg",
+    "results/wgs_analysis_harmonized/results_20250407-225145.json",
+    "results/wgs_analysis_harmonized/gaslit_af_report_20250407-225146.html",
+    "results/wgs_analysis_harmonized/gaslit_af_report_20250407-225146.md",
+    "results/wgs_analysis_harmonized/visualizations/chromosome_distribution.html",
+    "results/wgs_analysis_harmonized/visualizations/chromosome_distribution.svg",
+    "results/wgs_analysis_harmonized/visualizations/variant_type_distribution.html",
+    "results/wgs_analysis_harmonized/visualizations/variant_type_distribution.svg",
+    "results/wgs_analysis_harmonized/visualizations/transition_transversion_ratio.html",
+    "results/wgs_analysis_harmonized/visualizations/transition_transversion_ratio.svg",
+    "results/wgs_analysis_harmonized/visualizations/top_variant_enriched_genes.html",
+    "results/wgs_analysis_harmonized/visualizations/top_variant_enriched_genes.svg",
+    "results/personal_analysis/personal_variants.csv",
+    "results/personal_analysis/analysis_results.json",
+    "results/personal_analysis/gaslit_af_report_20250407-230828.md",
+    "results/personal_analysis/gaslit_af_report_20250407-230828.html",
+    "results/personal_analysis/visualizations/chromosome_distribution.html",
+    "results/personal_analysis/visualizations/chromosome_distribution.png",
+    "results/personal_analysis/visualizations/chromosome_distribution.svg",
+    "results/personal_analysis/visualizations/variant_type_distribution.html",
+    "results/personal_analysis/visualizations/variant_type_distribution.png",
+    "results/personal_analysis/visualizations/variant_type_distribution.svg",
+    "results/personal_analysis/visualizations/transition_transversion_ratio.html",
+    "results/personal_analysis/visualizations/transition_transversion_ratio.png",
+    "results/personal_analysis/visualizations/transition_transversion_ratio.svg",
+    "results/personal_analysis/visualizations/top_variant_enriched_genes.html",
+    "results/personal_analysis/visualizations/top_variant_enriched_genes.png",
+    "results/personal_analysis/visualizations/top_variant_enriched_genes.svg",
+    "results/personal_analysis_enhanced/gene_mapping_database.json",
+    "results/personal_analysis_enhanced/analysis_results.json",
+    "results/personal_analysis_enhanced/enhanced_variants.json",
+    "results/personal_analysis_enhanced/gaslit_af_report_20250407-231557.md",
+    "results/personal_analysis_enhanced/gaslit_af_report_20250407-231557.html",
+    "results/personal_analysis_enhanced/visualizations/chromosome_distribution.html",
+    "results/personal_analysis_enhanced/visualizations/chromosome_distribution.png",
+    "results/personal_analysis_enhanced/visualizations/chromosome_distribution.svg",
+    "results/personal_analysis_enhanced/visualizations/variant_type_distribution.html",
+    "results/personal_analysis_enhanced/visualizations/variant_type_distribution.png",
+    "results/personal_analysis_enhanced/visualizations/variant_type_distribution.svg",
+    "results/personal_analysis_enhanced/visualizations/transition_transversion_ratio.html",
+    "results/personal_analysis_enhanced/visualizations/transition_transversion_ratio.png",
+    "results/personal_analysis_enhanced/visualizations/transition_transversion_ratio.svg",
+    "results/personal_analysis_enhanced/visualizations/top_variant_enriched_genes.html",
+    "results/personal_analysis_enhanced/visualizations/top_variant_enriched_genes.png",
+    "results/personal_analysis_enhanced/visualizations/top_variant_enriched_genes.svg"
+  ],
+  "redundant_sets": {
+    "./output:gene_counts.csv": {
+      "keep": [
+        "output/gene_counts_20250407-171352.csv",
+        "output/gene_counts_20250407-163411.csv",
+        "output/gene_counts_20250407-162826.csv"
+      ],
+      "remove": [
+        "output/gene_counts_20250407-162644.csv",
+        "output/gene_counts_20250407-162228.csv"
+      ]
+    },
+    "./output:results.json": {
+      "keep": [
+        "output/results_20250407-171352.json",
+        "output/results_20250407-163411.json",
+        "output/results_20250407-162826.json"
+      ],
+      "remove": [
+        "output/results_20250407-162644.json",
+        "output/results_20250407-162228.json"
+      ]
+    },
+    "./output:variants.csv": {
+      "keep": [
+        "output/variants_20250407-171352.csv",
+        "output/variants_20250407-163411.csv",
+        "output/variants_20250407-162826.csv"
+      ],
+      "remove": [
+        "output/variants_20250407-162644.csv"
+      ]
+    },
+    "duplicate:345489acb20707c8a44d1aa6ee2e2ed1": {
+      "keep": [
+        "output/gene_counts_20250407-162228.csv"
+      ],
+      "remove": [
+        "output/gene_counts_20250407-162644.csv",
+        "output/gene_counts_20250407-162826.csv",
+        "output/gene_counts_20250407-163411.csv",
+        "output/gene_counts_20250407-171352.csv",
+        "results/full_analysis/gene_counts_20250407-192832.csv",
+        "results/full_analysis/gene_counts_20250407-192850.csv",
+        "results/wgs_analysis/gene_counts_20250407-223205.csv"
+      ]
+    },
+    "duplicate:da760617d523cd352993b1469c7db6bb": {
+      "keep": [
+        "output/variants_20250407-162644.csv"
+      ],
+      "remove": [
+        "output/variants_20250407-162826.csv",
+        "output/variants_20250407-163411.csv",
+        "output/variants_20250407-171352.csv",
+        "results/full_analysis/variants_20250407-192832.csv",
+        "results/full_analysis/variants_20250407-192850.csv",
+        "results/wgs_analysis/variants_20250407-223205.csv"
+      ]
+    },
+    "duplicate:7d45fc20be7401551ba5f96ae5da6e6f": {
+      "keep": [
+        "output/benchmark_results/system_analysis.md"
+      ],
+      "remove": [
+        "output/benchmark_results_final/system_analysis.md",
+        "analysis_results/system_analysis.md"
+      ]
+    },
+    "duplicate:f2e7342a8c47141afb8278623cfc8372": {
+      "keep": [
+        "output/benchmark_results/system_analysis.json"
+      ],
+      "remove": [
+        "output/benchmark_results_final/system_analysis.json",
+        "analysis_results/system_analysis.json"
+      ]
+    },
+    "duplicate:f2f64bfea99ac27dbf6edf11b784dc9a": {
+      "keep": [
+        "output/benchmark_results/gene_counts_20250407-214035.csv"
+      ],
+      "remove": [
+        "output/benchmark_results_final/gene_counts_20250407-214203.csv",
+        "analysis_results/gene_counts_20250407-173847.csv",
+        "analysis_results/gene_counts_20250407-174044.csv",
+        "results/wgs_analysis_advanced/gene_counts_20250407-224728.csv",
+        "results/wgs_analysis_advanced/gene_counts_20250407-224826.csv",
+        "results/wgs_analysis_harmonized/gene_counts_20250407-225145.csv"
+      ]
+    },
+    "duplicate:09ebb06978ec6a67af3399daf022c739": {
+      "keep": [
+        "output/benchmark_results/visualizations/chromosome_distribution.png"
+      ],
+      "remove": [
+        "output/benchmark_results_final/visualizations/chromosome_distribution.png",
+        "analysis_results/visualizations/chromosome_distribution.png",
+        "results/wgs_analysis_advanced/visualizations/chromosome_distribution.png",
+        "results/wgs_analysis_harmonized/visualizations/chromosome_distribution.png"
+      ]
+    },
+    "duplicate:cbdf014afd1a6cda46eb7c8d03a75b5d": {
+      "keep": [
+        "output/benchmark_results/visualizations/variant_type_distribution.png"
+      ],
+      "remove": [
+        "output/benchmark_results_final/visualizations/variant_type_distribution.png",
+        "analysis_results/visualizations/variant_type_distribution.png",
+        "results/wgs_analysis_advanced/visualizations/variant_type_distribution.png",
+        "results/wgs_analysis_harmonized/visualizations/variant_type_distribution.png"
+      ]
+    },
+    "duplicate:47b7fc2915a328220056448afebaf6e9": {
+      "keep": [
+        "output/benchmark_results/visualizations/transition_transversion_ratio.png"
+      ],
+      "remove": [
+        "output/benchmark_results_final/visualizations/transition_transversion_ratio.png",
+        "analysis_results/visualizations/transition_transversion_ratio.png",
+        "results/wgs_analysis_advanced/visualizations/transition_transversion_ratio.png",
+        "results/wgs_analysis_harmonized/visualizations/transition_transversion_ratio.png"
+      ]
+    },
+    "duplicate:e7d4b8d6456cd64d309ec73ea305f844": {
+      "keep": [
+        "output/benchmark_results/visualizations/top_variant_enriched_genes.png"
+      ],
+      "remove": [
+        "output/benchmark_results_final/visualizations/top_variant_enriched_genes.png",
+        "analysis_results/visualizations/top_variant_enriched_genes.png",
+        "results/wgs_analysis_advanced/visualizations/top_variant_enriched_genes.png",
+        "results/wgs_analysis_harmonized/visualizations/top_variant_enriched_genes.png"
+      ]
+    },
+    "duplicate:f69dbd9f4691778f3005cde3a0597110": {
+      "keep": [
+        "analysis_results/variants_20250407-173847.csv"
+      ],
+      "remove": [
+        "analysis_results/variants_20250407-174044.csv",
+        "results/wgs_analysis_advanced/variants_20250407-224728.csv",
+        "results/wgs_analysis_advanced/variants_20250407-224826.csv",
+        "results/wgs_analysis_harmonized/variants_20250407-225145.csv"
+      ]
+    },
+    "duplicate:318fe96a8941011129f453c6c880b9de": {
+      "keep": [
+        "output/visualizations/chromosome_distribution.png"
+      ],
+      "remove": [
+        "results/full_analysis/visualizations/chromosome_distribution.png",
+        "results/wgs_analysis/visualizations/chromosome_distribution.png"
+      ]
+    },
+    "duplicate:8427db808677c8065127aa3648efb4f7": {
+      "keep": [
+        "output/visualizations/variant_type_distribution.png"
+      ],
+      "remove": [
+        "results/full_analysis/visualizations/variant_type_distribution.png",
+        "results/wgs_analysis/visualizations/variant_type_distribution.png"
+      ]
+    },
+    "duplicate:560c97e198a38a8cdd705653f2e84951": {
+      "keep": [
+        "output/visualizations/transition_transversion_ratio.png"
+      ],
+      "remove": [
+        "results/full_analysis/visualizations/transition_transversion_ratio.png",
+        "results/wgs_analysis/visualizations/transition_transversion_ratio.png"
+      ]
+    },
+    "duplicate:00aa64f385f2d6bd0b06ec94b19179b8": {
+      "keep": [
+        "output/visualizations/top_variant_enriched_genes.png"
+      ],
+      "remove": [
+        "results/full_analysis/visualizations/top_variant_enriched_genes.png",
+        "results/wgs_analysis/visualizations/top_variant_enriched_genes.png"
+      ]
+    },
+    "duplicate:06149eaf9f6ddf9ac36ef75614e2da0e": {
+      "keep": [
+        "analysis_results/variant_report.md"
+      ],
+      "remove": [
+        "results/wgs_analysis_advanced/variant_report.md",
+        "results/wgs_analysis_harmonized/variant_report.md"
+      ]
+    },
+    "duplicate:10ec211df2da26f7bd0ebe74c030cddc": {
+      "keep": [
+        "results/personal_analysis/personal_variants.csv"
+      ],
+      "remove": [
+        "results/personal_analysis_enhanced/personal_variants.csv",
+        "results/personal_analysis_enhanced/enhanced_variants.csv"
+      ]
+    }
+  }
+}

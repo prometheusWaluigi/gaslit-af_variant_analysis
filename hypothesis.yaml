@@ -1,0 +1,92 @@
+name: GASLIT-AF Variant Analysis
+core_hypothesis: Parallelized VCF analysis targeting GASLIT-AF gene clusters with memory-bounded chunking and visualization.
+inspiration: "Integration of systems biology, recursive genetic theory, and genomic analytics for chronic multisystem disorders, emphasizing ME/CFS, EDS, MCAS, and dysautonomia."
+math_used:
+  - Graph Theory
+  - Network Analysis
+  - Eigenvector Centrality
+  - Polygenic Risk Scoring (PRS)
+  - Statistical variant enrichment analysis
+  - Parallel Processing Optimization
+  - Memory-Bounded Queue Scheduling
+origin_date: '2025-04-07T15:40:41.503650'
+status: draft
+tags:
+  - theory
+  - modeling
+  - genomics
+  - bioinformatics
+  - systems_biology
+  - recursive_framework
+  - oneAPI
+  - intel_arc
+  - level_zero
+authors:
+  - Ketan Raturi
+system_specifications:
+  os: Windows 11
+  cpu: Intel Core i7-12700K (16 cores, 24 threads)
+  ram: 80 GB DDR4
+  gpu: Intel Arc A770 (16 GB GDDR6)
+  compute_stack:
+    - Intel oneAPI Base Toolkit
+    - SYCL (Data Parallel C++)
+    - Level Zero Runtime
+    - OpenCL 3.0 NEO
+    - DPCTL + Numba-DPEX integration
+    - py-cyvcf2 optimized for CPU-GPU handoff (future)
+    - Plotly Dash with GPU rendering backend (experimental)
+data_inputs:
+  variant_call_format:
+    filepath: 'C:\Projects\gaslitAFModel\data\KetanRaturi-SQ4T88M8-30x-WGS-Sequencing_com-08-24-24.snp-indel.genome.vcf'
+    expected_variant_count: 'millions'
+functional_capabilities:
+  - multi-threaded VCF parsing
+  - targeted variant detection across defined gene clusters
+  - recursive loop identification in GASLIT-AF gene networks
+  - variant interaction network visualization
+  - automated report generation (interactive HTML, CSV exports)
+  - optional GPU-accelerated feature extraction and visualization
+  - SYCL-accelerated variant matrix computation (planned)
+performance_goals:
+  max_ram_usage_gb: 64
+  ram_buffer_gb: 16
+  chunk_size_variants: 1000000
+  parallel_threads: 16
+  expected_processing_time_hours: '< 2 per dataset'
+  max_gpu_utilization_pct: 70
+  gpu_memory_threshold_gb: 12
+output_formats:
+  - HTML interactive report
+  - CSV export
+  - JSON intermediate cache (optional)
+visualization_types:
+  - chromosome-level variant distribution
+  - transition/transversion ratios
+  - variant-type distribution
+  - top variant-enriched genes
+  - graph network of variant interactions
+quality_assurance:
+  validation_methods:
+    - unit testing
+    - benchmarking against known genomic datasets
+    - manual expert validation
+    - comparison with ClinVar and dbSNP annotations
+risk_management:
+  memory_overflow:
+    likelihood: medium
+    mitigation: chunked processing, caching mechanisms, real-time memory monitoring
+  variant_detection_accuracy:
+    likelihood: low
+    mitigation: cross-validation with clinical databases, bioinformatics QC pipeline integration
+  GPU_acceleration_stability:
+    likelihood: low
+    mitigation: fallback to CPU-parallel execution; kernel-by-kernel benchmarking
+implementation_timeline_weeks:
+  - setup_environment_and_basic_parser: 1
+  - parallel_processing_and_optimization: 2
+  - gaslit_af_gene_detection_and_expansion: 2
+  - visualization_and_reporting_module: 1
+  - comprehensive_testing_and_validation: 1
+version: '0.2'
+last_modified: '2025-04-07T20:42:00.000000'

@@ -1,0 +1,94 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GeneticConditions",
+  "type": "object",
+  "properties": {
+    "conditions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Condition"
+      }
+    }
+  },
+  "required": ["conditions"],
+  "definitions": {
+    "Condition": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the condition"
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the condition"
+        },
+        "symptoms": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "List of symptoms associated with the condition"
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "risk": {
+              "type": "string",
+              "enum": ["Pathogenic", "Likely Pathogenic", "Risk Factor", "Affects", "Benign", "Likely Benign", "Uncertain Significance"],
+              "description": "Clinical significance of the genetic variant"
+            },
+            "confidence": {
+              "type": "string",
+              "enum": ["High", "Medium", "Low"],
+              "description": "Confidence level of the assessment"
+            },
+            "classification": {
+              "type": "string",
+              "enum": ["D", "LD", "IR", "P", "S", "Other"],
+              "description": "Classification code of the condition"
+            }
+          },
+          "required": ["risk", "confidence", "classification"]
+        },
+        "genetic_data": {
+          "type": "object",
+          "properties": {
+            "gene": {
+              "type": "string",
+              "description": "Gene associated with the condition"
+            },
+            "variant_id": {
+              "type": "string",
+              "description": "Variant identifier (rsID)"
+            },
+            "rcv": {
+              "type": "string",
+              "description": "Reference ClinVar Variant identifier"
+            },
+            "genotype": {
+              "type": "string",
+              "description": "Individual's genotype for this variant"
+            }
+          },
+          "required": ["gene", "variant_id", "rcv", "genotype"]
+        },
+        "risk_assessment": {
+          "type": "object",
+          "properties": {
+            "frequency": {
+              "type": "number",
+              "description": "Frequency of this variant in population"
+            },
+            "version": {
+              "type": "string",
+              "description": "Risk assessment version or allele"
+            }
+          },
+          "required": ["frequency", "version"]
+        }
+      },
+      "required": ["name", "description", "symptoms", "status", "genetic_data", "risk_assessment"]
+    }
+  }
+}

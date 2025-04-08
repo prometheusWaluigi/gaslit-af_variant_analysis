@@ -1,0 +1,38 @@
+[tool.poetry]
+name = "gaslit-af-variant-analysis"
+version = "0.1.0"
+description = "Parallelized VCF analysis targeting GASLIT-AF gene clusters with memory-bounded chunking and visualization"
+authors = ["Ketan Raturi"]
+readme = "README.md"
+packages = [{include = "src"}]
+package-mode = false
+
+[tool.poetry.dependencies]
+python = "^3.12"
+seaborn = "^0.13.2"
+sympy = "^1.13.3"
+jax = {extras = ["cpu"], version = "^0.5.3"}
+networkx = "^3.4.2"
+jupyterlab = "^4.4.0"
+cyvcf2 = "^0.30.18"
+pandas = "^2.2.0"
+numpy = "^1.26"
+scipy = "^1.12"
+tqdm = "*"
+plotly = "*"
+dash = "*"
+joblib = "*"
+matplotlib = "*"
+rich = "*"
+dpctl = "^0.19.0"
+pyarrow = "^19.0.1"
+fastparquet = "^2024.11.0"
+
+[tool.poetry.dev-dependencies]
+pytest = "*"
+black = "*"
+jupyterlab = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

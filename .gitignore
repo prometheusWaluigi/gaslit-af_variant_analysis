@@ -1,0 +1,50 @@
+# Data files
+/data/
+*.vcf
+*.vcf.gz
+# Ignore all contents within data, but keep the dir if needed.
+/data/*
+!/data/.gitkeep
+
+# Cache and output directories
+/cache/
+/output/
+# Analysis Results
+/analysis_results/
+# Logs
+/logs/
+*.log
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+dist/
+build/
+*.egg-info/
+
+# Virtual environments
+venv/
+env/
+.venv/
+ENV/
+
+# Explicitly ignore .env files at the root or elsewhere
+*.env
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# OS specific files
+.DS_Store
+Thumbs.db
+
+# windsurf rules
+.windsurfrules
