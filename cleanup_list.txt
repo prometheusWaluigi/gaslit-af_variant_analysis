@@ -1,0 +1,26 @@
+Files to remove:
+1. analyze.py - Replaced by direct_system_analysis.py and run_direct_analysis.py
+2. analyze_modular.py - Older version of the analysis script
+3. analyze_personal_variants.py - Specialized script not used in main pipeline
+4. benchmark_variants.py - Testing script not used in main pipeline
+5. cleanup.py - Utility script not part of main pipeline
+6. find_specific_variants.py - Specialized script not used in main pipeline
+7. gene_position_db.py - Utility script not used in main pipeline
+8. parameter_mapping.py - Utility script not used in main pipeline
+9. parse_variants.py - Older script replaced by data_processing.py
+10. run_all_vcf_analysis.py - Replaced by run_direct_analysis.py and run_full_analysis.py
+Modules to clean up:
+1. src/gaslit_af/advanced_variant_processing.py - Replaced by direct_system_analysis.py
+2. src/gaslit_af/enhanced_reporting.py - Not used in current pipeline
+3. src/gaslit_af/variant_enrichment.py - Not used in current pipeline
+4. src/gaslit_af/api_integration.py - Not used in current pipeline
+5. src/gaslit_af/clinvar_cache.py - Not used in current pipeline
+6. src/gaslit_af/clinvar_integration.py - Not used in current pipeline
+Directories and test files to clean up:
+1. src/gaslit_af/clinvar/ - Not used in current pipeline
+2. tests/unit/test_advanced_variant_processing.py - Tests for removed module
+3. tests/unit/test_api_integration.py - Tests for removed module
+4. tests/unit/test_clinical_integration.py - Tests for removed module
+5. tests/unit/test_clinical_variants.py - Tests for removed module
+6. tests/unit/test_clinvar_integration.py - Tests for removed module
+7. tests/unit/test_clinvar_modules.py - Tests for removed module

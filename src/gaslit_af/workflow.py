@@ -33,13 +33,8 @@ from src.gaslit_af.data_processing import vcf_to_dataframe, extract_gaslit_af_va
 from src.gaslit_af.streaming import stream_process_vcf
 from src.gaslit_af.visualization import generate_all_visualizations
 from src.gaslit_af.reporting import generate_html_report
-from src.gaslit_af.enhanced_reporting import generate_enhanced_report
 from src.gaslit_af.caching import AnalysisCache
 from src.gaslit_af.biological_systems import analyze_systems, plot_system_distribution, generate_system_summary
-from src.gaslit_af.advanced_variant_processing import process_vcf_with_pysam, VariantProcessor
-from src.gaslit_af.clinical_integration import ClinicalIntegration
-from src.gaslit_af.api_integration import VariantAPIIntegration
-from src.gaslit_af.variant_enrichment import VariantEnricher, enrich_variants_with_af_data
 from src.gaslit_af.annovar_integration import AnnovarIntegration, enrich_variants_with_annovar, is_annovar_available
 from src.gaslit_af.rccx_analysis import analyze_rccx_cnv_from_vcf, RCCX_REGION_GRCH38
 from src.gaslit_af.exceptions import (
@@ -61,7 +56,7 @@ from src.gaslit_af.exceptions import (
 log = logging.getLogger("gaslit-af")
 console = Console()
 
-def setup_environment(args) -> Tuple[AnalysisCache, Optional[ClinicalIntegration], Optional[VariantAPIIntegration], Optional[VariantEnricher], Any]:
+def setup_environment(args) -> Tuple[AnalysisCache, Any]:
     """
     Set up the analysis environment.
     
@@ -69,7 +64,7 @@ def setup_environment(args) -> Tuple[AnalysisCache, Optional[ClinicalIntegration
         args: Command-line arguments namespace
         
     Returns:
-        Tuple containing cache, clinical_integration, api_integration, variant_enricher, queue
+        Tuple containing cache and queue
     """
     try:
         # Create output directory
@@ -82,34 +77,10 @@ def setup_environment(args) -> Tuple[AnalysisCache, Optional[ClinicalIntegration
             enabled=not args.no_cache
         )
         
-        # Initialize clinical integration if clinical data is provided
-        clinical_integration = None
-        if hasattr(args, 'clinical_data') and args.clinical_data:
-            log.info(f"Initializing clinical integration with data from {args.clinical_data}")
-            clinical_integration = ClinicalIntegration(args.clinical_data)
-        
-        # Initialize API integration if enabled
-        api_integration = None
-        if hasattr(args, 'api_annotation') and args.api_annotation:
-            log.info(f"Initializing API integration with sources: {', '.join(args.api_sources)}")
-            api_integration = VariantAPIIntegration(
-                cache_dir=Path(args.api_cache_dir),
-                cache_ttl=args.api_cache_ttl
-            )
-            
-        # Initialize variant enricher if enabled
-        variant_enricher = None
-        if hasattr(args, 'variant_enrichment') and args.variant_enrichment:
-            log.info("Initializing variant enrichment for AF-specific analysis")
-            variant_enricher = VariantEnricher(
-                cache_dir=Path(args.enrichment_cache_dir) if hasattr(args, 'enrichment_cache_dir') else None,
-                cache_ttl=args.enrichment_cache_ttl if hasattr(args, 'enrichment_cache_ttl') else 24
-            )
-        
         # Initialize device queue
         queue = initialize_device()
         
-        return cache, clinical_integration, api_integration, variant_enricher, queue
+        return cache, queue
     
     except Exception as e:
         error_msg = f"Error setting up environment: {e}"
@@ -737,7 +708,7 @@ def run_analysis_workflow(args):
     """
     try:
         # Step 1: Set up environment
-        cache, clinical_integration, api_integration, variant_enricher, queue = setup_environment(args)
+        cache, queue = setup_environment(args)
         
         # Step 2: Print configuration
         print_configuration(args, queue, cache)
@@ -752,18 +723,12 @@ def run_analysis_workflow(args):
         if variant_df is None or variant_df.empty:
             variant_df = extract_variant_data_for_visualization(args, cache, variant_df)
         
-        # Step 6: Annotate variants with external APIs if enabled
-        variant_df = annotate_variants_with_api(args, api_integration, variant_df)
-        
-        # Step 7: Annotate variants with ANNOVAR if available
+        # Step 6: Annotate variants with ANNOVAR if available
         variant_df = annotate_variants_with_annovar(args, variant_df)
         
-        # Step 8: Save results to files
+        # Step 7: Save results to files
         log.info("Saving analysis results")
         result_paths = save_results(gene_counts, variant_df, args.output_dir)
-        
-        # Step 9: Perform variant enrichment if enabled
-        variant_df = enrich_variants(args, variant_df)
         
         # Step 10: Generate visualizations and reports
         figures = generate_visualizations_and_reports(args, variant_df, gene_counts, system_results, rccx_results)
