@@ -6,16 +6,42 @@
 /data/*
 !/data/.gitkeep
 
+# Intermediate bioinformatics files
+*.bam
+*.bam.bai
+*.sam
+*.fastq
+*.fq
+*.fastq.gz
+*.fq.gz
+*.bed
+*.aln
+*.idx
+*.index
+*.sorted.*
+
 # Cache and output directories
 /cache/
 /output/
 /tests/cache/
 /tests/output/
-# Analysis Results
+/test_output/
+
+# Results directories
 /analysis_results/
+/comprehensive_report/
+/integrated_analysis/
+/pipeline_output/
+/images/
 # Logs and reports
 /logs/
 *.log
+*.html
+*.pdf
+*.csv
+*.tsv
+*.xlsx
+*.json
 repo-to-text_*.txt
 cleanup_report_*.json
 
@@ -49,6 +75,14 @@ ENV/
 # OS specific files
 .DS_Store
 Thumbs.db
+
+# Temporary and intermediate files
+*.tmp
+*.temp
+*.bak
+*.~
+*.part
+*~
 
 # windsurf rules
 .windsurfrules
