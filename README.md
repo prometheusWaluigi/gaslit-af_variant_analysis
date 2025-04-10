@@ -60,25 +60,22 @@ The core logic resides in the `src/gaslit_af` directory:
 *   `device.py`: Manages device selection (GPU/CPU) for oneAPI.
 *   `gene_lists.py` / `biological_systems.py`: Define the target genes and pathways for GASLIT-AF.
 *   `data_processing.py`: Primary VCF parsing and variant extraction logic.
-*   `advanced_variant_processing.py`: Alternative, `pysam`-based VCF processing for more complex scenarios (optional).
-*   `clinvar_integration.py`: Manages ClinVar data download, parsing, and annotation.
-*   `api_integration.py`: Handles annotation via external APIs (e.g., Ensembl, MyVariant.info).
+*   `streaming.py`: Provides memory-efficient streaming processing for large VCF files.
 *   `caching.py`: Implements caching mechanisms.
 *   `visualization.py`: Generates plots and figures (using Matplotlib, Seaborn, Plotly).
-*   `reporting.py` / `enhanced_reporting.py`: Creates HTML output reports (current variant focus).
-*   `clinical_integration.py`: Integrates user-provided clinical data with variant findings (current implementation).
-*   **(Future Modules):** Placeholder for RCCX analysis, methylation integration, advanced AI modeling, etc.
+*   `reporting.py`: Creates HTML output reports.
+*   `annovar_integration.py`: Optional integration with ANNOVAR for advanced variant annotation.
+*   `rccx_analysis.py`: Specialized analysis of the RCCX region (6p21.3).
+*   **(Future Modules):** Placeholder for methylation integration, advanced AI modeling, etc.
 
 ### Analysis Scripts
 
 The repository includes several high-level scripts for different analysis workflows:
 
-*   `analyze_modular.py`: The primary entry point for analyzing a single VCF file with full annotation capabilities.
 *   `direct_system_analysis.py`: Standalone script for analyzing pre-annotated VCF files, extracting gene information directly from the ANN field.
 *   `run_direct_analysis.py`: Batch processor for running direct analysis on multiple VCF files in a directory.
 *   `generate_combined_report.py`: Creates a comprehensive HTML report combining results from multiple analyses.
 *   `run_full_analysis.py`: End-to-end pipeline that runs direct analysis on all VCF files and generates a combined report.
-*   `run_all_vcf_analysis.py`: Alternative batch processor with additional options for customizing the analysis.
 
 ## Setup & Installation
 
@@ -103,46 +100,30 @@ This project uses [Poetry](https://python-poetry.org/) for dependency management
 
 ## Usage
 
-### Primary Analysis
+### Direct VCF Analysis Pipeline
 
-The primary entry point is `analyze_modular.py`.
+The recommended workflow is to use the direct analysis pipeline, which is optimized for pre-annotated VCF files and provides a more streamlined experience.
 
-```bash
-poetry run python analyze_modular.py <path/to/your/variants.vcf> [OPTIONS]
-```
+#### Full Analysis Pipeline (Recommended)
 
-**Required Arguments:**
-
-*   `vcf_path`: Path to the input VCF file.
-
-**Common Optional Arguments:**
-
-*   `--output-dir <dir>`: Specify the directory for output results (default: `output`).
-*   `--system-analysis`: Perform and include biological system-level analysis in the report.
-*   `--enhanced-report`: Generate an interactive HTML report with more detailed visualizations.
-*   `--clinical-data <path>`: Path to a JSON file containing clinical variant data for annotation.
-*   `--api-annotation`: Enable variant annotation using external APIs (Ensembl, MyVariant.info).
-*   `--use-pysam`: Use the `pysam`-based advanced variant processing module (might be slower but potentially more feature-rich).
-*   `--dbsnp-path <path>`: Path to a dbSNP VCF file (required for `rsID` mapping if using `--use-pysam`).
-*   `--threads <N>`: Set the number of worker threads (default: 16).
-*   `--max-ram <GB>`: Set the approximate maximum RAM usage limit (default: 64).
-*   `--no-cache`: Disable caching for this run.
-*   `--cache-dir <dir>`: Specify a custom cache directory (default: `./cache`).
-*   `--open-browser`: Automatically open the generated report in a web browser.
-
-**Example:**
+The simplest way to analyze multiple VCF files is to use the `run_full_analysis.py` script:
 
 ```bash
-poetry run python analyze_modular.py /data/patient_genome.vcf.gz \
-    --output-dir results/patient_analysis \
-    --system-analysis \
-    --enhanced-report \
-    --clinical-data /data/clinical_markers.json \
-    --api-annotation \
-    --threads 24 \
-    --max-ram 100 \
-    --open-browser
+python run_full_analysis.py --data-dir data --file-pattern "*.vcf.gz" --open-browser
 ```
+
+This script:
+1. Processes all VCF files in the specified directory
+2. Performs biological system analysis on each file
+3. Generates visualizations for system distributions and top genes
+4. Creates a combined HTML report with interactive tabs for each sample
+
+**Common Options:**
+* `--data-dir <dir>`: Directory containing VCF files (default: "data")
+* `--file-pattern <pattern>`: Pattern to match VCF files (default: "*.vcf.gz")
+* `--output-dir <dir>`: Base directory for analysis results (default: "analysis_results")
+* `--chunk-size <size>`: Number of variants to process at once (default: 10000000)
+* `--open-browser`: Automatically open the report in a browser when complete
 
 ### Direct VCF Analysis
 
@@ -187,21 +168,7 @@ The full analysis pipeline is particularly useful for comparing multiple samples
 
 ## Outputs
 
-### Primary Analysis Outputs
-
-The standard analysis generates files in the specified output directory, typically including:
-
-*   `gaslit_af_variants.csv`: A CSV file listing the identified variants within the target GASLIT-AF genes.
-*   `gene_counts.json`: A JSON file summarizing the count of variants per gene.
-*   `analysis_report.html`: A standard HTML report summarizing findings and basic visualizations.
-*   `enhanced_report.html` (if `--enhanced-report` is used): An interactive HTML report with Plotly figures.
-*   `clinical_report.html` (if `--clinical-data` is provided): A report focusing on clinically relevant variants.
-*   `visualizations/`: A directory containing generated plots (PNG, SVG, potentially interactive HTML).
-    *   `variant_distribution.png`
-    *   `gene_contribution.png`
-    *   `systems/` (if `--system-analysis` is used): Plots related to biological system distributions.
-*   `clinical_variants.csv` (if `--clinical-data` is provided): Variants annotated with clinical significance.
-*   `clinical_summary.json` (if `--clinical-data` is provided): Summary of clinical findings.
+### Analysis Outputs
 
 ### Direct Analysis Outputs
 
