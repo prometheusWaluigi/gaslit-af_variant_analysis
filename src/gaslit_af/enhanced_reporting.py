@@ -21,6 +21,7 @@ import markdown
 from jinja2 import Template
 import numpy as np
 from typing import Dict, List, Any, Optional, Tuple
+from src.gaslit_af.rccx_analysis import RCCX_REGION_GRCH38
 
 # Define common symptoms associated with GASLIT-AF genes
 COMMON_SYMPTOMS = [
@@ -71,11 +72,11 @@ GENE_SYMPTOM_MAPPING = {
 }
 
 def generate_enhanced_report(
-    gene_counts: Dict[str, int],
-    variant_data: pd.DataFrame,
-    figures: Dict[str, Any],
     output_dir: str,
+    variant_df: Optional[pd.DataFrame] = None,
     system_analysis: Optional[Dict[str, Any]] = None,
+    rccx_results: Optional[List[Dict]] = None,
+    figures: Optional[Dict[str, Any]] = None,
     include_symptoms: bool = True
 ) -> str:
     """
@@ -83,52 +84,65 @@ def generate_enhanced_report(
     visualizations and symptom correlation checkboxes.
     
     Args:
-        gene_counts: Dictionary of gene counts
-        variant_data: DataFrame of variant data
-        figures: Dictionary of visualization figures
         output_dir: Output directory for report files
+        variant_df: DataFrame of variant data
         system_analysis: Optional system analysis results
+        rccx_results: Optional RCCX region structural variant scan results
+        figures: Optional dictionary of visualization figures
         include_symptoms: Whether to include symptom correlation section
         
     Returns:
         Path to the generated HTML report
     """
-    os.makedirs(output_dir, exist_ok=True)
-    
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
     # Create timestamp for filenames
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-    
+
+    # Ensure variant_df is a DataFrame
+    if variant_df is None:
+        variant_df = pd.DataFrame()
+
+    # Calculate gene counts if not provided directly (preferred way)
+    if not variant_df.empty and 'GENE' in variant_df.columns:
+        gene_counts = variant_df['GENE'].value_counts().to_dict()
+    else:
+        gene_counts = {}
+
     # Prepare report data
     report_data = {
         "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "gene_counts": gene_counts,
-        "total_variants": len(variant_data) if variant_data is not None else 0,
+        "total_variants": len(variant_df),
         "unique_genes": len(gene_counts) if gene_counts else 0,
         "system_analysis": system_analysis,
-        "figures": figures
+        "figures": figures if figures else {},
+        "rccx_results": rccx_results if rccx_results else [],
+        "RCCX_REGION_GRCH38": RCCX_REGION_GRCH38
     }
-    
+
     # Generate symptom correlation data if requested
     symptom_data = None
     if include_symptoms:
         symptom_data = generate_symptom_correlation(gene_counts)
         report_data["symptom_data"] = symptom_data
-    
+
     # Generate markdown report
     md_report_path = os.path.join(output_dir, f"gaslit_af_report_{timestamp}.md")
     md_content = generate_markdown_report(report_data)
-    
+
     with open(md_report_path, 'w') as f:
         f.write(md_content)
-    
-    # Generate HTML report with interactive elements
-    html_report_path = os.path.join(output_dir, f"gaslit_af_report_{timestamp}.html")
+
+    # Generate HTML report content
     html_content = generate_html_report(report_data)
-    
-    with open(html_report_path, 'w') as f:
+
+    html_path = output_dir / f"enhanced_report_{timestamp}.html"
+    with open(html_path, "w", encoding="utf-8") as f:
         f.write(html_content)
-    
-    return html_report_path
+
+    return html_path
 
 def generate_symptom_correlation(gene_counts: Dict[str, int]) -> Dict[str, Any]:
     """
@@ -143,43 +157,43 @@ def generate_symptom_correlation(gene_counts: Dict[str, int]) -> Dict[str, Any]:
     # Initialize symptom scores
     symptom_scores = {symptom: 0 for symptom in COMMON_SYMPTOMS}
     gene_symptom_contributions = {}
-    
+
     # Calculate symptom scores based on gene variants
     for gene, count in gene_counts.items():
         if gene in GENE_SYMPTOM_MAPPING:
             associated_symptoms = GENE_SYMPTOM_MAPPING[gene]
-            
+
             # Record gene's contribution to each symptom
             for symptom in associated_symptoms:
                 if symptom in symptom_scores:
                     # Weight by variant count
                     contribution = count
                     symptom_scores[symptom] += contribution
-                    
+
                     # Track which genes contribute to which symptoms
                     if symptom not in gene_symptom_contributions:
                         gene_symptom_contributions[symptom] = []
-                    
+
                     gene_symptom_contributions[symptom].append({
                         "gene": gene,
                         "variants": count,
                         "contribution": contribution
                     })
-    
+
     # Normalize scores to a 0-100 scale for visualization
     max_score = max(symptom_scores.values()) if symptom_scores.values() else 1
     normalized_scores = {
-        symptom: (score / max_score) * 100 if max_score > 0 else 0 
+        symptom: (score / max_score) * 100 if max_score > 0 else 0
         for symptom, score in symptom_scores.items()
     }
-    
+
     # Sort symptoms by score for better visualization
     sorted_symptoms = sorted(
-        normalized_scores.items(), 
-        key=lambda x: x[1], 
+        normalized_scores.items(),
+        key=lambda x: x[1],
         reverse=True
     )
-    
+
     return {
         "raw_scores": symptom_scores,
         "normalized_scores": normalized_scores,
@@ -256,8 +270,8 @@ This report was generated using the GASLIT-AF Variant Analysis tool, which exami
     
     # Add top genes (sorted by variant count)
     top_genes = sorted(
-        report_data["gene_counts"].items(), 
-        key=lambda x: x[1], 
+        report_data["gene_counts"].items(),
+        key=lambda x: x[1],
         reverse=True
     )
     template_data["top_genes"] = top_genes
@@ -276,7 +290,29 @@ def generate_html_report(report_data: Dict[str, Any]) -> str:
     Returns:
         HTML content as string
     """
-    # Base HTML template with interactive elements
+    # Prepare template data
+    template_data = report_data.copy()
+    
+    # Add top genes (sorted by variant count)
+    top_genes = sorted(
+        report_data.get("gene_counts", {}).items(),
+        key=lambda x: x[1],
+        reverse=True
+    )
+    template_data["top_genes"] = top_genes
+    
+    # Process visualization data for Plotly
+    figures_json = {}
+    for viz_name, fig in template_data.get("figures", {}).items():
+        if hasattr(fig, 'to_plotly_json'):
+            # Convert Plotly figure to JSON-serializable format
+            fig_json = fig.to_plotly_json()
+            figures_json[viz_name] = convert_numpy_types(fig_json)
+        else:
+            # Handle non-Plotly figure objects if necessary, or log warning
+            pass # Or log.warning(f"Figure {viz_name} is not a Plotly object.")
+    template_data["figures_json"] = figures_json # Use a different key for JSON
+
     html_template = """<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -520,6 +556,39 @@ def generate_html_report(report_data: Dict[str, Any]) -> str:
     </div>
     {% endif %}
     
+    {% if report_data.rccx_results %}
+    <section class="my-5">
+        <h2 class="mb-4">RCCX Locus Structural Variant Scan (from VCF)</h2>
+        <p>Potential structural variants identified within the RCCX region ({{ report_data.RCCX_REGION_GRCH38.chrom }}:{{ "{:,}".format(report_data.RCCX_REGION_GRCH38.start) }}-{{ "{:,}".format(report_data.RCCX_REGION_GRCH38.end) }}) based on VCF annotations.</p>
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Type</th>
+                        <th>Chromosome</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th>Approx. Length</th>
+                        <th>VCF Record Details</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for sv in report_data.rccx_results %}
+                    <tr>
+                        <td>{{ sv.type }}</td>
+                        <td>{{ sv.chrom }}</td>
+                        <td>{{ "{:,}".format(sv.start) }}</td>
+                        <td>{{ "{:,}".format(sv.end) }}</td>
+                        <td>{{ "{:,}".format(sv.length) if sv.length is not none else 'N/A' }}</td>
+                        <td><pre style="white-space: pre-wrap; word-wrap: break-word; max-width: 400px;">{{ sv.record_details }}</pre></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+    {% endif %}
+    
     <button class="export-button" onclick="exportReport()">Export as PDF</button>
     
     <div class="footer">
@@ -546,43 +615,48 @@ def generate_html_report(report_data: Dict[str, Any]) -> str:
         }
         
         // Initialize visualizations
-        {% for viz_name, viz_data in figures.items() %}
-        var {{viz_name}}_data = {{viz_data|tojson}};
-        Plotly.newPlot('{{viz_name}}_plot', {{viz_name}}_data.data, {{viz_name}}_data.layout);
-        {% endfor %}
+        const figuresData = {{ figures_json | tojson }};
         
-        {% if symptom_data %}
-        // Initialize symptom correlation chart
-        var ctx = document.getElementById('symptomCorrelationChart').getContext('2d');
-        var symptomChart = new Chart(ctx, {
-            type: 'horizontalBar',
-            data: {
-                labels: [{% for symptom, score in symptom_data.sorted_symptoms %}{% if score > 0 %}'{{symptom}}',{% endif %}{% endfor %}],
-                datasets: [{
-                    label: 'Correlation Score (%)',
-                    data: [{% for symptom, score in symptom_data.sorted_symptoms %}{% if score > 0 %}{{score}},{% endif %}{% endfor %}],
-                    backgroundColor: 'rgba(52, 152, 219, 0.6)',
-                    borderColor: 'rgba(52, 152, 219, 1)',
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    xAxes: [{
-                        ticks: {
-                            beginAtZero: true,
-                            max: 100
-                        }
-                    }]
-                },
-                responsive: true,
-                maintainAspectRatio: false
+        function renderPlot(elementId, figureKey) {
+            const element = document.getElementById(elementId);
+            if (element && figuresData[figureKey]) {
+                Plotly.newPlot(element, figuresData[figureKey].data, figuresData[figureKey].layout);
+            } else {
+                console.warn(`Element ${elementId} or figure data ${figureKey} not found.`);
             }
-        });
-        {% endif %}
+        }
         
-        // Export function (simplified - would need PDF library in production)
-        function exportReport() {
+        // Render all plots defined in figures_json
+        renderPlot('chromosome-distribution-chart', 'chromosome_distribution');
+        renderPlot('variant-type-chart', 'variant_type_distribution');
+        renderPlot('titv-ratio-chart', 'transition_transversion');
+        renderPlot('top-genes-chart', 'gene_counts');
+        // Note: Gene network might need different rendering if not standard Plotly JSON
+        // renderPlot('gene-network-chart', 'gene_network');
+        renderPlot('system-pie-chart', 'system_pie');
+        renderPlot('system-bar-chart', 'system_bar');
+        renderPlot('system-sunburst-chart', 'system_sunburst');
+        renderPlot('system-heatmap', 'system_heatmap');
+        renderPlot('symptom-correlation-chart', 'symptom_correlation');
+        
+        // Remove the old loop
+        /*
+        {% for name, fig_json in figures_json.items() %}
+            {% if fig_json %}
+                var figData = {{ fig_json | safe }};
+                var targetElementId = '{{ name.replace("_", "-") }}-chart'; // Convert underscores to hyphens
+                var targetElement = document.getElementById(targetElementId);
+                if (targetElement) {
+                    Plotly.newPlot(targetElementId, figData.data, figData.layout);
+                } else {
+                    console.warn("Could not find element: " + targetElementId + " for plot {{ name }}");
+                }
+            {% endif %}
+        {% endfor %}
+        */
+ 
+        // PDF Export Button
+        function exportToPDF() {
             alert('PDF export functionality would be implemented here with a proper PDF generation library.');
             // In a real implementation, this would use a library like jsPDF or call a server endpoint
         }
@@ -602,107 +676,21 @@ def generate_html_report(report_data: Dict[str, Any]) -> str:
 </body>
 </html>
 """
-    
-    # Prepare template data
-    template_data = report_data.copy()
-    
-    # Add top genes (sorted by variant count)
-    top_genes = sorted(
-        report_data["gene_counts"].items(), 
-        key=lambda x: x[1], 
-        reverse=True
-    )
-    template_data["top_genes"] = top_genes
-    
-    # Process visualization data for Plotly
-    for viz_name, fig in template_data["figures"].items():
-        if hasattr(fig, 'to_plotly_json'):
-            # Convert Plotly figure to JSON-serializable format
-            fig_json = fig.to_plotly_json()
-            
-            # Handle NumPy arrays in the figure data
-            def convert_numpy_types(obj):
-                if isinstance(obj, dict):
-                    return {k: convert_numpy_types(v) for k, v in obj.items()}
-                elif isinstance(obj, list):
-                    return [convert_numpy_types(item) for item in obj]
-                elif isinstance(obj, np.ndarray):
-                    return obj.tolist()
-                elif isinstance(obj, np.integer):
-                    return int(obj)
-                elif isinstance(obj, np.floating):
-                    return float(obj)
-                elif isinstance(obj, np.bool_):
-                    return bool(obj)
-                else:
-                    return obj
-            
-            # Apply conversion to the figure JSON
-            template_data["figures"][viz_name] = convert_numpy_types(fig_json)
-    
-    # Create Jinja2 template and render
-    template = Template(html_template)
-    return template.render(**template_data)
+    html_content = html_template
+    return html_content
 
-def create_symptom_visualization(symptom_data: Dict[str, Any]) -> go.Figure:
-    """
-    Create an interactive visualization of symptom correlations.
-    
-    Args:
-        symptom_data: Dictionary with symptom correlation data
-        
-    Returns:
-        Plotly figure object
-    """
-    # Extract data for visualization
-    symptoms = []
-    scores = []
-    
-    for symptom, score in symptom_data["sorted_symptoms"]:
-        if score > 0:
-            symptoms.append(symptom)
-            scores.append(score)
-    
-    # Create horizontal bar chart
-    fig = go.Figure(go.Bar(
-        x=scores,
-        y=symptoms,
-        orientation='h',
-        marker=dict(
-            color='rgba(52, 152, 219, 0.6)',
-            line=dict(color='rgba(52, 152, 219, 1.0)', width=2)
-        )
-    ))
-    
-    fig.update_layout(
-        title="Potential Symptom Correlation",
-        xaxis_title="Correlation Score (%)",
-        yaxis_title="Symptom",
-        height=max(400, len(symptoms) * 30),
-        margin=dict(l=150, r=20, t=50, b=50),
-        yaxis=dict(autorange="reversed")
-    )
-    
-    return fig
-
-def export_report_as_pdf(html_path: str, output_path: str) -> str:
-    """
-    Export HTML report as PDF.
-    
-    Args:
-        html_path: Path to HTML report
-        output_path: Path to save PDF report
-        
-    Returns:
-        Path to PDF report
-    """
-    # This would typically use a library like weasyprint or a headless browser
-    # For now, we'll just create a placeholder function
-    pdf_path = output_path.replace('.html', '.pdf')
-    
-    # In a real implementation, this would convert HTML to PDF
-    # For example:
-    # from weasyprint import HTML
-    # HTML(html_path).write_pdf(pdf_path)
-    
-    return pdf_path
+def convert_numpy_types(obj):
+    if isinstance(obj, dict):
+        return {k: convert_numpy_types(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_numpy_types(item) for item in obj]
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.bool_):
+        return bool(obj)
+    else:
+        return obj

@@ -44,9 +44,14 @@ While the current pipeline provides valuable insights into baseline genetic pred
 *   **Caching**: Caches intermediate results (like parsed ClinVar data, API responses) to speed up subsequent runs.
 *   **Biological System Analysis**: Aggregates variant findings based on predefined biological systems/pathways.
 *   **Comprehensive Reporting**: Generates static HTML reports and optional enhanced interactive reports (using Plotly) summarizing findings, variant counts, system distributions, and potentially clinical correlations.
+*   **Direct VCF Analysis**: Provides specialized scripts for efficient analysis of pre-annotated VCF files, extracting gene information directly from the ANN field.
+*   **Batch Processing**: Supports processing multiple VCF files in a single run, with automatic generation of combined reports for cross-sample comparison.
+*   **Interactive Visualizations**: Creates interactive HTML visualizations using Plotly for system distributions, gene contributions, and variant patterns.
 *   **Extensible**: Designed for future integration with modules addressing the broader GASLIT-AF Recon Protocol (e.g., CNV analysis, methylation data, multi-omic integration).
 
 ## Architecture Overview
+
+### Core Library
 
 The core logic resides in the `src/gaslit_af` directory:
 
@@ -63,6 +68,17 @@ The core logic resides in the `src/gaslit_af` directory:
 *   `reporting.py` / `enhanced_reporting.py`: Creates HTML output reports (current variant focus).
 *   `clinical_integration.py`: Integrates user-provided clinical data with variant findings (current implementation).
 *   **(Future Modules):** Placeholder for RCCX analysis, methylation integration, advanced AI modeling, etc.
+
+### Analysis Scripts
+
+The repository includes several high-level scripts for different analysis workflows:
+
+*   `analyze_modular.py`: The primary entry point for analyzing a single VCF file with full annotation capabilities.
+*   `direct_system_analysis.py`: Standalone script for analyzing pre-annotated VCF files, extracting gene information directly from the ANN field.
+*   `run_direct_analysis.py`: Batch processor for running direct analysis on multiple VCF files in a directory.
+*   `generate_combined_report.py`: Creates a comprehensive HTML report combining results from multiple analyses.
+*   `run_full_analysis.py`: End-to-end pipeline that runs direct analysis on all VCF files and generates a combined report.
+*   `run_all_vcf_analysis.py`: Alternative batch processor with additional options for customizing the analysis.
 
 ## Setup & Installation
 
@@ -86,6 +102,8 @@ This project uses [Poetry](https://python-poetry.org/) for dependency management
 4.  **Ensure Intel oneAPI Base Toolkit is installed** (for GPU acceleration): Follow Intel's installation guide for your operating system. Make sure the environment variables (`ONEAPI_ROOT`, etc.) are set correctly, or source the `setvars.sh` script.
 
 ## Usage
+
+### Primary Analysis
 
 The primary entry point is `analyze_modular.py`.
 
@@ -126,9 +144,52 @@ poetry run python analyze_modular.py /data/patient_genome.vcf.gz \
     --open-browser
 ```
 
-## Outputs (Foundational Pipeline)
+### Direct VCF Analysis
 
-The analysis **currently** generates files in the specified output directory, typically including:
+For more efficient analysis of annotated VCF files, the pipeline provides several specialized scripts:
+
+#### 1. Direct Analysis of a Single VCF File
+
+```bash
+python direct_system_analysis.py <path/to/annotated.vcf.gz> --output-dir <output_directory>
+```
+
+This script extracts gene information directly from the ANN field in annotated VCF files and maps variants to GASLIT-AF biological systems.
+
+#### 2. Batch Analysis of Multiple VCF Files
+
+```bash
+python run_direct_analysis.py --data-dir <directory_with_vcf_files> --file-pattern "*.vcf.gz"
+```
+
+This script processes all VCF files in the specified directory that match the given pattern, performing direct system analysis on each file.
+
+#### 3. Generate Combined Report
+
+```bash
+python generate_combined_report.py --results-dir <analysis_results_directory>
+```
+
+This script generates a comprehensive HTML report combining the results from multiple direct analyses, including system distributions, top genes, and variant counts.
+
+#### 4. Full Analysis Pipeline
+
+```bash
+python run_full_analysis.py --data-dir <directory_with_vcf_files> --open-browser
+```
+
+This script runs the complete pipeline:
+1. Performs direct analysis on all VCF files in the specified directory
+2. Generates a combined HTML report of all results
+3. Optionally opens the report in a browser
+
+The full analysis pipeline is particularly useful for comparing multiple samples or analyzing different types of variants (SNPs, CNVs, SVs) from the same sample.
+
+## Outputs
+
+### Primary Analysis Outputs
+
+The standard analysis generates files in the specified output directory, typically including:
 
 *   `gaslit_af_variants.csv`: A CSV file listing the identified variants within the target GASLIT-AF genes.
 *   `gene_counts.json`: A JSON file summarizing the count of variants per gene.
@@ -142,6 +203,24 @@ The analysis **currently** generates files in the specified output directory, ty
 *   `clinical_variants.csv` (if `--clinical-data` is provided): Variants annotated with clinical significance.
 *   `clinical_summary.json` (if `--clinical-data` is provided): Summary of clinical findings.
 
+### Direct Analysis Outputs
+
+The direct analysis pipeline generates a more structured set of outputs:
+
+*   **Per-VCF Analysis Directory**: For each analyzed VCF file, a directory is created (e.g., `analysis_results/direct_sample1.vcf`) containing:
+    *   `system_analysis.json`: Detailed JSON with system counts, percentages, and gene mappings
+    *   `gene_counts.csv`: CSV file with gene-level variant counts and system assignments
+    *   `system_distribution.html/.png`: Interactive and static visualizations of variant distribution across biological systems
+    *   `system_distribution_pie.html/.png`: Pie chart representation of system distribution
+    *   `top_genes.html/.png`: Bar chart of the top genes by variant count
+
+*   **Combined Report**: When using the full pipeline or `generate_combined_report.py`:
+    *   `gaslit_af_combined_report.html`: A comprehensive HTML report that integrates results from all analyzed VCF files
+    *   Interactive tabs for each sample
+    *   Summary tables comparing variant counts and distributions across samples
+    *   Embedded visualizations for each sample
+    *   System-level comparisons and gene-level details
+
 ## Development & Testing
 
 *   Tests are located in the `tests/` directory and use `pytest`.
@@ -153,6 +232,40 @@ The analysis **currently** generates files in the specified output directory, ty
 *   Code follows functional programming principles where practical and aims for modularity.
 *   Contributions are welcome! Please follow standard fork-and-pull-request workflows, especially for developing modules aligned with the GASLIT-AF Recon Protocol.
 
+## VCF File Requirements
+
+### Standard Analysis Mode
+
+For the standard analysis mode using `analyze_modular.py`, the pipeline accepts:
+
+* Standard VCF files (version 4.0+)
+* Gzipped VCF files (.vcf.gz)
+* Both annotated and unannotated VCF files
+* Whole genome, exome, or targeted panel VCF files
+
+The pipeline will extract variants that match genes in the GASLIT-AF gene lists and perform annotation as needed.
+
+### Direct Analysis Mode
+
+For the direct analysis mode using `direct_system_analysis.py`, `run_direct_analysis.py`, or `run_full_analysis.py`, the pipeline requires:
+
+* Pre-annotated VCF files with gene information in the ANN field
+* Annotation should follow the standard format: `ANN=Gene|GeneID|...`
+* Compatible with annotation tools like SnpEff, VEP, or ANNOVAR
+
+The direct analysis mode is significantly faster as it extracts gene information directly from the annotation field without requiring additional lookups or API calls.
+
+### Supported Variant Types
+
+The pipeline currently focuses on:
+
+* SNPs (Single Nucleotide Polymorphisms)
+* Small indels (insertions/deletions)
+* CNVs (Copy Number Variations) - basic support
+* SVs (Structural Variants) - basic support
+
+Future versions will expand support for more comprehensive analysis of structural variants, particularly in the RCCX region.
+
 ## Roadmap / Future Directions
 
 1.  **Phase I Integration:** Develop modules for RCCX structural variant analysis (CNV detection specific to 6p21.3).
@@ -161,6 +274,7 @@ The analysis **currently** generates files in the specified output directory, ty
 4.  **Multi-Omic Data Input:** Design interfaces for integrating transcriptomic, proteomic, and metabolomic datasets.
 5.  **Advanced AI Models:** Implement combinatorial variant analysis and attractor state modeling (Phase VI/VII).
 6.  **Refine oneAPI Usage:** Explore further optimization opportunities with SYCL/DPC++ for complex algorithms.
+7.  **Enhanced VCF Support:** Improve handling of complex structural variants and multi-sample VCF files.
 
 ## License
 

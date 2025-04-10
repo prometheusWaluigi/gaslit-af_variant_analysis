@@ -9,6 +9,8 @@
 # Cache and output directories
 /cache/
 /output/
+/tests/cache/
+/tests/output/
 # Analysis Results
 /analysis_results/
 # Logs

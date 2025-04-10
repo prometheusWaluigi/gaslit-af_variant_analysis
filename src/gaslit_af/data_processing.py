@@ -13,6 +13,8 @@ import json
 import time
 import dpctl
 
+from src.gaslit_af.exceptions import DataProcessingError, FileError, retry_operation
+
 # Configure logging
 log = logging.getLogger("gaslit-af")
 
@@ -34,7 +36,17 @@ def vcf_to_dataframe(vcf_path, limit=None, batch_size=100000):
     
     log.info(f"Converting VCF to DataFrame: {vcf_path}")
     
-    vcf = VCF(vcf_path)
+    if not os.path.exists(vcf_path):
+        error_msg = f"VCF file not found: {vcf_path}"
+        log.error(error_msg)
+        raise FileError(error_msg)
+    
+    try:
+        vcf = VCF(vcf_path)
+    except Exception as e:
+        error_msg = f"Error opening VCF file: {e}"
+        log.error(error_msg)
+        raise DataProcessingError(error_msg, details=str(e))
     
     # Define columns to extract
     columns = ['CHROM', 'POS', 'ID', 'REF', 'ALT', 'QUAL', 'FILTER']
@@ -98,11 +110,17 @@ def vcf_to_dataframe(vcf_path, limit=None, batch_size=100000):
         for batch_data in batch_results:
             data.extend(batch_data)
     
+    if not data:
+        warning_msg = "No variant data extracted from VCF file"
+        log.warning(warning_msg)
+        return pd.DataFrame()
+    
     df = pd.DataFrame(data)
     log.info(f"Created DataFrame with {len(df)} variants and {len(df.columns)} columns")
     
     return df
 
+@retry_operation(max_attempts=3, retry_delay=2)
 def extract_gaslit_af_variants(vcf_path, gaslit_af_genes, queue, batch_size=2000000):
     """
     Extract variants in GASLIT-AF genes from VCF file.
@@ -118,7 +136,17 @@ def extract_gaslit_af_variants(vcf_path, gaslit_af_genes, queue, batch_size=2000
     """
     log.info(f"Extracting GASLIT-AF variants from: {vcf_path}")
     
-    vcf = VCF(vcf_path)
+    if not os.path.exists(vcf_path):
+        error_msg = f"VCF file not found: {vcf_path}"
+        log.error(error_msg)
+        raise FileError(error_msg)
+    
+    try:
+        vcf = VCF(vcf_path)
+    except Exception as e:
+        error_msg = f"Error opening VCF file: {e}"
+        log.error(error_msg)
+        raise DataProcessingError(error_msg, details=str(e))
     match_counts = defaultdict(int)
     variant_data = []
     
@@ -220,19 +248,24 @@ def update_gene_counts(genes_found, match_counts, queue):
     genes_array = np.array(genes_found)
     
     try:
-        # SYCL-based parallel unique count with optimized GPU usage
-        with dpctl.device_context(queue):
+        # Try to use SYCL for acceleration, but this is optional
+        # and we'll fall back to CPU if it fails
+        if hasattr(dpctl, '_sycl_context'):
             # Use SYCL USM memory for better GPU performance
             import dpctl.tensor as dpt
-            usm_array = dpt.asarray(genes_array)
-            
-            # Perform unique count on GPU
-            # This is more efficient than transferring back to CPU
-            unique_genes, counts = np.unique(usm_array.to_numpy(), return_counts=True)
-            
-            # Use vectorized operations for better performance
-            for gene, count in zip(unique_genes, counts):
-                match_counts[gene] += int(count)
+            with dpctl._sycl_context(queue):
+                usm_array = dpt.asarray(genes_array)
+                
+                # Perform unique count on GPU
+                # This is more efficient than transferring back to CPU
+                unique_genes, counts = np.unique(usm_array.to_numpy(), return_counts=True)
+                
+                # Use vectorized operations for better performance
+                for gene, count in zip(unique_genes, counts):
+                    match_counts[gene] += int(count)
+        else:
+            # If dpctl doesn't have _sycl_context, fall back to CPU
+            raise AttributeError("dpctl doesn't have required SYCL context methods")
     except Exception as e:
         # Fallback to CPU if SYCL fails
         log.warning(f"⚠️ SYCL processing failed, falling back to CPU: {e}")
@@ -249,39 +282,45 @@ def save_results(match_counts, variant_df, output_dir):
         variant_df: DataFrame with variant information
         output_dir: Directory to save results
     """
-    os.makedirs(output_dir, exist_ok=True)
-    timestamp = time.strftime("%Y%m%d-%H%M%S")
+    try:
+        os.makedirs(output_dir, exist_ok=True)
+        timestamp = time.strftime("%Y%m%d-%H%M%S")
     
-    # Save gene counts as CSV
-    gene_counts_df = pd.DataFrame(list(match_counts.items()), 
-                                 columns=['Gene', 'VariantCount'])
-    gene_counts_df = gene_counts_df.sort_values('VariantCount', ascending=False)
-    gene_counts_path = os.path.join(output_dir, f"gene_counts_{timestamp}.csv")
-    gene_counts_df.to_csv(gene_counts_path, index=False)
-    log.info(f"Saved gene counts to: {gene_counts_path}")
-    
-    # Save variant data as CSV
-    if not variant_df.empty:
-        variant_path = os.path.join(output_dir, f"variants_{timestamp}.csv")
-        variant_df.to_csv(variant_path, index=False)
-        log.info(f"Saved variant data to: {variant_path}")
-    
-    # Save as JSON
-    json_data = {
-        'analysis_time': timestamp,
-        'total_genes': len(match_counts),
-        'total_variants': variant_df.shape[0] if not variant_df.empty else 0,
-        'gene_counts': match_counts
-    }
-    
-    json_path = os.path.join(output_dir, f"results_{timestamp}.json")
-    with open(json_path, 'w') as f:
-        json.dump(json_data, f, indent=2)
-    
-    log.info(f"Saved JSON results to: {json_path}")
-    
-    return {
-        'gene_counts_path': gene_counts_path,
-        'variant_path': variant_path if not variant_df.empty else None,
-        'json_path': json_path
-    }
+        # Save gene counts as CSV
+        gene_counts_df = pd.DataFrame(list(match_counts.items()), 
+                                    columns=['Gene', 'VariantCount'])
+        gene_counts_df = gene_counts_df.sort_values('VariantCount', ascending=False)
+        gene_counts_path = os.path.join(output_dir, f"gene_counts_{timestamp}.csv")
+        gene_counts_df.to_csv(gene_counts_path, index=False)
+        log.info(f"Saved gene counts to: {gene_counts_path}")
+        
+        # Save variant data as CSV
+        variant_path = None
+        if not variant_df.empty:
+            variant_path = os.path.join(output_dir, f"variants_{timestamp}.csv")
+            variant_df.to_csv(variant_path, index=False)
+            log.info(f"Saved variant data to: {variant_path}")
+        
+        # Save as JSON
+        json_data = {
+            'analysis_time': timestamp,
+            'total_genes': len(match_counts),
+            'total_variants': variant_df.shape[0] if not variant_df.empty else 0,
+            'gene_counts': match_counts
+        }
+        
+        json_path = os.path.join(output_dir, f"results_{timestamp}.json")
+        with open(json_path, 'w') as f:
+            json.dump(json_data, f, indent=2)
+        
+        log.info(f"Saved JSON results to: {json_path}")
+        
+        return {
+            'gene_counts_path': gene_counts_path,
+            'variant_path': variant_path,
+            'json_path': json_path
+        }
+    except Exception as e:
+        error_msg = f"Error saving results: {e}"
+        log.error(error_msg)
+        raise FileError(error_msg, details=str(e))

@@ -27,6 +27,7 @@ try:
     from src.gaslit_af.caching import AnalysisCache
     from src.gaslit_af.biological_systems import analyze_systems, plot_system_distribution, generate_system_summary, BIOLOGICAL_SYSTEMS
     from src.gaslit_af.advanced_variant_processing import process_vcf_with_pysam, VariantProcessor, KNOWN_SNPS
+    from src.gaslit_af.streaming import stream_process_vcf
 except ImportError:
     # If running from the same directory, try relative import
     sys.path.append(os.path.dirname(os.path.abspath(__file__)))
@@ -37,6 +38,7 @@ except ImportError:
     from src.gaslit_af.caching import AnalysisCache
     from src.gaslit_af.biological_systems import analyze_systems, plot_system_distribution, generate_system_summary, BIOLOGICAL_SYSTEMS
     from src.gaslit_af.advanced_variant_processing import process_vcf_with_pysam, VariantProcessor, KNOWN_SNPS
+    from src.gaslit_af.streaming import stream_process_vcf
 
 # Configure rich console and logging
 console = Console()
@@ -305,6 +307,7 @@ def main():
     parser.add_argument("--clear-cache", action="store_true", help="Clear cache before running")
     parser.add_argument("--system-analysis", action="store_true", default=True, help="Perform biological system-level analysis")
     parser.add_argument("--threads", type=int, default=16, help="Number of worker threads for processing")
+    parser.add_argument("--use-streaming", action="store_true", help="Use streaming processor for very large VCF files (optimized memory usage)")
     
     args = parser.parse_args()
     
@@ -359,23 +362,54 @@ def main():
         cache_params = {
             'batch_size': args.batch_size,
             'max_ram': args.max_ram,
-            'ram_buffer': args.ram_buffer
+            'ram_buffer': args.ram_buffer,
+            'use_streaming': args.use_streaming
         }
         
         # Try to get gene counts from cache
         gene_counts = None
+        variant_df = None
         if not args.no_cache:
             gene_counts = cache.get(args.vcf_path, 'gene_counts', cache_params)
             if gene_counts:
                 log.info("Using cached gene counts from previous analysis")
+                
+                # Also try to get variant data from cache
+                variant_df = cache.get(args.vcf_path, 'variant_df', cache_params)
+                if variant_df is not None:
+                    log.info("Using cached variant data from previous analysis")
         
         # If not in cache, run analysis
         if gene_counts is None:
-            gene_counts = analyze_vcf_oneapi(args.vcf_path, args.batch_size, args.max_ram, args.ram_buffer, args.threads)
+            if args.use_streaming:
+                log.info(f"Using streaming processor (optimized for large files): {args.vcf_path}")
+                
+                # Define progress callback for streaming processor
+                def progress_callback(processed, total):
+                    if total > 0:
+                        percent = (processed / total) * 100
+                        log.info(f"Progress: {processed:,}/{total:,} records ({percent:.1f}%)")
+                
+                # Process VCF file with streaming processor
+                gene_counts, variant_df = stream_process_vcf(
+                    vcf_path=args.vcf_path,
+                    target_genes=GASLIT_AF_GENES,
+                    max_ram_usage=args.max_ram,
+                    ram_buffer=args.ram_buffer,
+                    max_workers=args.threads,
+                    initial_chunk_size=args.batch_size,
+                    progress_callback=progress_callback
+                )
+            else:
+                gene_counts = analyze_vcf_oneapi(args.vcf_path, args.batch_size, args.max_ram, args.ram_buffer, args.threads)
             
             # Cache the results
             if not args.no_cache and gene_counts:
                 cache.set(gene_counts, args.vcf_path, 'gene_counts', cache_params)
+                
+                # Also cache variant data if available
+                if variant_df is not None and not variant_df.empty:
+                    cache.set(variant_df, args.vcf_path, 'variant_df', cache_params)
         
         if gene_counts is None:
             console.print("[bold red]Analysis failed![/]")
@@ -460,8 +494,14 @@ def main():
                 log.info("[bold]Step 6:[/] Generating reports")
                 
                 # Generate standard HTML report
-                report_path = generate_html_report(gene_counts, variant_df, figures, output_dir, 
-                                                  system_analysis if args.system_analysis else None)
+                report_path = generate_html_report(
+                    variant_df=variant_df,
+                    output_dir=output_dir,
+                    args=args,
+                    system_results=system_analysis if args.system_analysis else None,
+                    figures=figures,
+                    gene_counts=gene_counts
+                )
                 console.print(f"[bold green]Standard HTML Report:[/] {report_path}")
                 
                 # Generate enhanced report if requested

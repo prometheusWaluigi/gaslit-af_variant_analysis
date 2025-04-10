@@ -1,26 +1,46 @@
+#!/usr/bin/env python3
 """
-Command-line interface module for GASLIT-AF Variant Analysis.
-Handles argument parsing and configuration.
+Script to run the GASLIT-AF analysis on all VCF files in the data folder.
 """
 
+import os
+import sys
 import argparse
 from pathlib import Path
-from src.gaslit_af.workflow import run_analysis_workflow
+import logging
+from rich.console import Console
+from rich.logging import RichHandler
+from rich.progress import Progress, TextColumn, BarColumn, TimeElapsedColumn
 
+# Import the workflow module
+try:
+    from src.gaslit_af.workflow import run_analysis_workflow
+except ImportError:
+    # If running from the same directory, try relative import
+    sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+    from src.gaslit_af.workflow import run_analysis_workflow
+
+# Configure rich console and logging
+console = Console()
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    datefmt="[%X]",
+    handlers=[RichHandler(rich_tracebacks=True, console=console)]
+)
+log = logging.getLogger("gaslit-af-batch")
 
 def parse_args():
-    """
-    Parse command-line arguments for GASLIT-AF Variant Analysis.
-    
-    Returns:
-        Parsed arguments namespace
-    """
-    parser = argparse.ArgumentParser(description="GASLIT-AF Variant Analysis")
+    """Parse command-line arguments for batch processing."""
+    parser = argparse.ArgumentParser(description="GASLIT-AF Batch Variant Analysis")
     
     # Input/output arguments
-    parser.add_argument("vcf_path", help="Path to VCF file for analysis")
-    parser.add_argument("--output-dir", type=str, default="output", 
-                        help="Output directory for results")
+    parser.add_argument("--data-dir", type=str, default="data", 
+                        help="Directory containing VCF files")
+    parser.add_argument("--output-base-dir", type=str, default="analysis_results", 
+                        help="Base output directory for results")
+    parser.add_argument("--file-pattern", type=str, default="*.vcf.gz", 
+                        help="File pattern to match VCF files")
     
     # Performance tuning arguments
     parser.add_argument("--batch-size", type=int, default=2000000, 
@@ -43,7 +63,7 @@ def parse_args():
                         help="Disable caching")
     
     # Analysis options
-    parser.add_argument("--system-analysis", action="store_true", 
+    parser.add_argument("--system-analysis", action="store_true", default=True,
                         help="Perform biological system analysis")
     parser.add_argument("--use-pysam", action="store_true", 
                         help="Use pysam for advanced variant processing")
@@ -73,13 +93,6 @@ def parse_args():
                         help="Path to ANNOVAR installation directory")
     parser.add_argument("--humandb-path", type=str,
                         help="Path to ANNOVAR humandb directory")
-    parser.add_argument("--annovar-protocols", nargs="+", 
-                        default=["refGene", "exac03", "gnomad211_exome", "clinvar_20220320", "dbnsfp42a"],
-                        help="ANNOVAR annotation protocols to use")
-    parser.add_argument("--annovar-operations", nargs="+",
-                        help="ANNOVAR operations for each protocol (must match number of protocols)")
-    parser.add_argument("--download-annovar-dbs", action="store_true",
-                        help="Download required ANNOVAR databases if not present")
     
     # Variant enrichment options
     parser.add_argument("--variant-enrichment", action="store_true",
@@ -96,6 +109,8 @@ def parse_args():
                         help="Skip HTML report generation")
     parser.add_argument("--enhanced-report", action="store_true", 
                         help="Generate enhanced report with interactive visualizations and symptom correlations")
+    parser.add_argument("--include-symptoms", action="store_true",
+                        help="Include symptom correlations in enhanced report")
     parser.add_argument("--open-browser", action="store_true", 
                         help="Automatically open report in browser")
     
@@ -103,15 +118,79 @@ def parse_args():
     args = parser.parse_args()
     
     # Convert string paths to Path objects
-    args.output_dir = Path(args.output_dir)
+    args.data_dir = Path(args.data_dir)
+    args.output_base_dir = Path(args.output_base_dir)
     args.cache_dir = Path(args.cache_dir)
     
     return args
 
+def main():
+    """Main function to run the analysis on all VCF files."""
+    # Parse command-line arguments
+    args = parse_args()
+    
+    # Find all VCF files in the data directory
+    vcf_files = list(args.data_dir.glob(args.file_pattern))
+    
+    if not vcf_files:
+        log.error(f"No VCF files found in {args.data_dir} matching pattern {args.file_pattern}")
+        sys.exit(1)
+    
+    log.info(f"Found {len(vcf_files)} VCF files to analyze:")
+    for vcf_file in vcf_files:
+        log.info(f"  - {vcf_file}")
+    
+    # Create the base output directory
+    args.output_base_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Process each VCF file
+    with Progress(
+        TextColumn("[bold blue]{task.description}"),
+        BarColumn(),
+        TextColumn("[bold]{task.completed}/{task.total}"),
+        TimeElapsedColumn(),
+        console=console
+    ) as progress:
+        task = progress.add_task("[green]Processing VCF files", total=len(vcf_files))
+        
+        for vcf_file in vcf_files:
+            # Create a unique output directory for this VCF file
+            output_dir = args.output_base_dir / vcf_file.stem.replace('.vcf', '')
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            log.info(f"\n{'='*80}")
+            log.info(f"Processing {vcf_file}")
+            log.info(f"Output directory: {output_dir}")
+            log.info(f"{'='*80}\n")
+            
+            # Create a copy of the args with the current VCF file and output directory
+            class Args:
+                pass
+            
+            current_args = Args()
+            for key, value in vars(args).items():
+                setattr(current_args, key, value)
+            
+            current_args.vcf_path = vcf_file
+            current_args.output_dir = output_dir
+            
+            try:
+                # Run the analysis workflow
+                run_analysis_workflow(current_args)
+                log.info(f"Analysis completed for {vcf_file}")
+            except Exception as e:
+                log.error(f"Error processing {vcf_file}: {e}")
+                import traceback
+                log.error(traceback.format_exc())
+            
+            # Update progress
+            progress.update(task, advance=1)
+    
+    log.info("\n\n")
+    log.info(f"{'='*80}")
+    log.info(f"All analyses completed!")
+    log.info(f"Results saved to: {args.output_base_dir}")
+    log.info(f"{'='*80}")
 
 if __name__ == "__main__":
-    # Parse command-line arguments
-    parsed_args = parse_args()
-    
-    # Run the main analysis workflow
-    run_analysis_workflow(parsed_args)
+    main()
