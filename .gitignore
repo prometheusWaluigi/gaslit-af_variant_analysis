@@ -52,3 +52,13 @@ Thumbs.db
 
 # windsurf rules
 .windsurfrules
+reference/hg38.fa
+reference/hg38.fa.0123
+reference/hg38.fa.amb
+reference/hg38.fa.ann
+reference/hg38.fa.bwt.2bit.64
+reference/hg38.fa.gz
+reference/hg38.fa.pac
+pipeline_output/KetanRaturi-SQ4T88M8-30x-WGS-Sequencing_com-08-24-24.sam
+gaslit_af_combined_report.html
+gaslit_af_combined_report.html
