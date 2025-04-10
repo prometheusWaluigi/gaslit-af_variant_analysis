@@ -13,9 +13,11 @@
 /tests/output/
 # Analysis Results
 /analysis_results/
-# Logs
+# Logs and reports
 /logs/
 *.log
+repo-to-text_*.txt
+cleanup_report_*.json
 
 __pycache__/
 *.py[cod]
